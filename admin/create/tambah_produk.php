@@ -27,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $gambar1 = $_FILES['gambar1']['name'];
     $gambar2 = $_FILES['gambar2']['name'];
     $gambar3 = $_FILES['gambar3']['name'];
-    $gambar4 = $_FILES['gambar4']['name'];
 
     $gambar1_path = $folder_name . '/' . basename($gambar1);
     $gambar2_path = $folder_name . '/' . basename($gambar2);
@@ -37,7 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     move_uploaded_file($_FILES['gambar1']['tmp_name'], $target_dir . basename($gambar1));
     move_uploaded_file($_FILES['gambar2']['tmp_name'], $target_dir . basename($gambar2));
     move_uploaded_file($_FILES['gambar3']['tmp_name'], $target_dir . basename($gambar3));
-    move_uploaded_file($_FILES['gambar4']['tmp_name'], $target_dir . basename($gambar4));
 
     $query_produk = "INSERT INTO produk (kode_produk, nama, kategori, sub_kategori, proses, material, deskripsi, harga)
                      VALUES ('$kodeProduk', '$nama', '$kategori', '$sub_kategori', '$proses', '$material', '$deskripsi', '$harga')";
@@ -45,8 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (mysqli_query($conn, $query_produk)) {
         $id_produk = mysqli_insert_id($conn);
 
-        $query_gambar = "INSERT INTO gambar_produk (id_produk, gambar1, gambar2, gambar3, gambar4)
-                         VALUES ('$id_produk', '$gambar1_path', '$gambar2_path', '$gambar3_path', '$gambar4_path')";
+        $query_gambar = "INSERT INTO gambar_produk (id_produk, gambar1, gambar2, gambar3)
+                         VALUES ('$id_produk', '$gambar1_path', '$gambar2_path', '$gambar3_path')";
 
         if (mysqli_query($conn, $query_gambar)) {
             $query_stok = "INSERT INTO stok (id_produk, s, m, l, xl, xxl)

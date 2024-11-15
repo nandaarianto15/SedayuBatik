@@ -13,7 +13,7 @@ $id_produk = $_GET['id'];
 // Query untuk mengambil detail produk
 $query = "
     SELECT produk.*, 
-           gambar_produk.gambar1, gambar_produk.gambar2, gambar_produk.gambar3, gambar_produk.gambar4, 
+           gambar_produk.gambar1, gambar_produk.gambar2, gambar_produk.gambar3, 
            stok.s, stok.m, stok.l, stok.xl, stok.xxl 
     FROM produk
     LEFT JOIN gambar_produk ON produk.id = gambar_produk.id_produk
@@ -67,7 +67,6 @@ if (!$produk) {
                     <img src="../../assets/produk/<?= $produk['gambar1']; ?>" alt="Thumbnail 1" class="thumbnail">
                     <img src="../../assets/produk/<?= $produk['gambar2']; ?>" alt="Thumbnail 2" class="thumbnail">
                     <img src="../../assets/produk/<?= $produk['gambar3']; ?>" alt="Thumbnail 3" class="thumbnail">
-                    <img src="../../assets/produk/<?= $produk['gambar4']; ?>" alt="Thumbnail 4" class="thumbnail">
                 </div>
             </div>
 

@@ -53,26 +53,34 @@ $totalDiskon = $totalDiskonResult->fetch_assoc()['total'];
         <!-- Dashboard Content -->
         <h1>DASHBOARD</h1>
         <div class="dashboard">
-            <div class="card">
-                <i class="fas fa-user"></i>
-                <h2 class="count"><?= $totalUser ?></h2>
-                <p class="text">Pengguna</p>
-            </div>
-            <div class="card">
-                <i class="fas fa-tshirt"></i>
-                <h2 class="count"><?= $totalProduk ?></h2>
-                <p class="text">Produk</p>
-            </div>
-            <div class="card">
-                <i class="fas fa-shopping-cart"></i>
-                <h2 class="count">0</h2>
-                <p class="text">Pesanan</p>
-            </div>
-            <div class="card">
-                <i class="fas fa-ticket-alt"></i>
-                <h2 class="count"><?= $totalDiskon ?></h2>
-                <p class="text">Diskon</p>
-            </div>
+            <a href="pengguna.php">
+                <div class="card">
+                    <i class="fas fa-user"></i>
+                    <h2 class="count"><?= $totalUser ?></h2>
+                    <p class="text">Pengguna</p>
+                </div>
+            </a>
+            <a href="produk.php">
+                <div class="card">
+                    <i class="fas fa-tshirt"></i>
+                    <h2 class="count"><?= $totalProduk ?></h2>
+                    <p class="text">Produk</p>
+                </div>
+            </a>
+            <a href="pesanan.php">
+                <div class="card">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h2 class="count">0</h2>
+                    <p class="text">Pesanan</p>
+                </div>
+            </a>
+            <a href="diskon.php">
+                <div class="card">
+                    <i class="fas fa-ticket-alt"></i>
+                    <h2 class="count"><?= $totalDiskon ?></h2>
+                    <p class="text">Diskon</p>
+                </div>
+            </a>
         </div>
     </div>
 
