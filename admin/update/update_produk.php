@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $xl = $_POST['xl'];
     $xxl = $_POST['xxl'];
 
-    $query_select_gambar = "SELECT gambar1, gambar2, gambar3 FROM gambar_produk WHERE id_produk = '$produkId'";
+    $query_select_gambar = "SELECT gambar1, gambar2, gambar3, gambar4 FROM gambar_produk WHERE id_produk = '$produkId'";
     $result = mysqli_query($conn, $query_select_gambar);
     $old_images = mysqli_fetch_assoc($result);
 
@@ -56,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     uploadImage('gambar1', $new_images, $old_images, $target_dir, $folder_name);
     uploadImage('gambar2', $new_images, $old_images, $target_dir, $folder_name);
     uploadImage('gambar3', $new_images, $old_images, $target_dir, $folder_name);
+    uploadImage('gambar4', $new_images, $old_images, $target_dir, $folder_name);
 
     $query_update_produk = "UPDATE produk SET 
         nama = '$nama', 
@@ -71,7 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $query_update_gambar = "UPDATE gambar_produk SET 
             gambar1 = '{$new_images['gambar1']}',
             gambar2 = '{$new_images['gambar2']}',
-            gambar3 = '{$new_images['gambar3']}'
+            gambar3 = '{$new_images['gambar3']}',
+            gambar4 = '{$new_images['gambar4']}'
         WHERE id_produk = '$produkId'";
 
         if (mysqli_query($conn, $query_update_gambar)) {

@@ -179,6 +179,10 @@ $result = mysqli_query($conn, $query);
                     <label for="gambar3">Gambar Produk 3:</label>
                     <input type="file" name="gambar3" id="gambar3" accept="image/*">
                 </div>
+                <div class="form-group">
+                    <label for="gambar3">Gambar Produk 4:</label>
+                    <input type="file" name="gambar4" id="gambar4" accept="image/*">
+                </div>
                 <button type="submit" class="btn">Simpan Produk</button>
             </form>
         </div>
@@ -261,6 +265,10 @@ $result = mysqli_query($conn, $query);
                 <div class="form-group">
                     <label for="edit_gambar3">Gambar Produk 3:</label>
                     <input type="file" name="gambar3" id="edit_gambar3" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="edit_gambar3">Gambar Produk 4:</label>
+                    <input type="file" name="gambar4" id="edit_gambar4" accept="image/*">
                 </div>
                 <button type="submit" class="btn">Update Produk</button>
             </form>

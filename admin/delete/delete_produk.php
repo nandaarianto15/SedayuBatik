@@ -3,7 +3,7 @@ include '../../koneksi/koneksi.php';
 
 if (isset($_GET['id'])) {
     $produkId = $_GET['id'];
-    $query_get_images = "SELECT gambar1, gambar2, gambar3 FROM gambar_produk WHERE id_produk='$produkId'";
+    $query_get_images = "SELECT gambar1, gambar2, gambar3, gambar4 FROM gambar_produk WHERE id_produk='$produkId'";
     $result = mysqli_query($conn, $query_get_images);
     $images = mysqli_fetch_assoc($result);
 
