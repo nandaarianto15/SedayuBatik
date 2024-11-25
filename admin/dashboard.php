@@ -19,9 +19,9 @@ $totalProdukResult = $conn->query($totalProdukQuery);
 $totalProduk= $totalProdukResult->fetch_assoc()['total'];
 
 // total pesanan
-// $totalPesananQuery = "SELECT COUNT(*) AS total FROM pesanan";
-// $totalPesananResult = $conn->query($totalPesananQuery);
-// $totalPesanan = $total_transaksi_result->fetch_assoc()['total'];
+$totalPesananQuery = "SELECT COUNT(*) AS total FROM pesanan";
+$totalPesananResult = $conn->query($totalPesananQuery);
+$totalPesanan = $totalPesananResult->fetch_assoc()['total'];
 
 // total diskon
 $totalDiskonQuery = "SELECT COUNT(*) AS total FROM diskon";
@@ -70,7 +70,7 @@ $totalDiskon = $totalDiskonResult->fetch_assoc()['total'];
             <a href="pesanan.php">
                 <div class="card">
                     <i class="fas fa-shopping-cart"></i>
-                    <h2 class="count">0</h2>
+                    <h2 class="count"><?= $totalPesanan ?></h2>
                     <p class="text">Pesanan</p>
                 </div>
             </a>

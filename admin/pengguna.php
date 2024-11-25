@@ -8,9 +8,16 @@ if ($_SESSION['role'] !== 'admin') {
     exit();
 }
 
-$query = "SELECT * FROM users WHERE role = 'user'";
-$result = $conn->query($query);
+// Check if search parameter is set
+$searchQuery = isset($_GET['search']) ? $_GET['search'] : '';
 
+// Query to get all users, optionally filtered by search
+$query = "SELECT * FROM users WHERE role = 'user' and nama LIKE ?";
+$stmt = $conn->prepare($query);
+$searchTerm = "%" . $searchQuery . "%";
+$stmt->bind_param('s', $searchTerm); // Gunakan 's' untuk satu parameter string
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -37,7 +44,7 @@ $result = $conn->query($query);
         <h1>PENGGUNA</h1>
         <div class="container">
             
-            <input type="text" name="search" id="search" placeholder="Nama">
+            <input type="text" name="search" id="liveSearch" placeholder="Nama" onkeyup="liveSearch()">
             <button class="btn-header">Cari</button>
             
             <table>
@@ -51,7 +58,7 @@ $result = $conn->query($query);
                         <th>Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="searchResults">
                     <?php
                     $no = 1;
                     while ($user = mysqli_fetch_assoc($result)) {
@@ -73,10 +80,7 @@ $result = $conn->query($query);
                                 '<?php echo $user['email']; ?>', 
                                 '<?php echo $user['telepon']; ?>', 
                                 '<?php echo $user['jenis_kelamin']; ?>', 
-                                '<?php echo $user['tanggal_lahir']; ?>', 
-                                '<?php echo $user['alamat_lengkap']; ?>', 
-                                '<?php echo $user['pin']; ?>', 
-                                '<?php echo $user['catatan_pesanan']; ?>'
+                                '<?php echo $user['tanggal_lahir']; ?>'
                             )">
                                 <i class="fas fa-edit btn-action"></i>
                             </a>
@@ -173,6 +177,31 @@ $result = $conn->query($query);
                 closeModal();
             }
         }
+
+        function liveSearch() {
+            var searchTerm = document.getElementById("liveSearch").value;
+
+            // Buat objek XMLHttpRequest
+            var xhr = new XMLHttpRequest();
+
+            // Mengonfigurasi permintaan GET
+            xhr.open("GET", "pengguna.php?search=" + encodeURIComponent(searchTerm), true);
+
+            // Setel tipe respons ke HTML (karena kita akan mengembalikan tabel)
+            xhr.responseType = 'document';
+
+            // Kirim permintaan
+            xhr.send();
+
+            // Ketika permintaan selesai, perbarui tabel
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var tableBody = xhr.response.querySelector('tbody');
+                    document.getElementById('searchResults').innerHTML = tableBody.innerHTML;
+                }
+            };
+        }
+
   </script>
 
 </body>

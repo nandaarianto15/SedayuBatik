@@ -8,6 +8,63 @@ if ($_SESSION['role'] !== 'admin') {
     exit();
 }
 
+// Ambil ID Pesanan dari URL
+$id_pesanan = $_GET['id'];
+
+// Query untuk mengambil detail pesanan
+$query = "
+    SELECT 
+        pesanan.kode_pesanan,
+        pesanan.status,
+        pesanan.bukti_transfer,  -- Menambahkan bukti_transfer
+        users.nama AS nama_pemesan,
+        users.email,
+        users.telepon,
+        alamat.provinsi,
+        alamat.kota,
+        alamat.kecamatan,
+        alamat.alamat_jalan,
+        alamat.kodepos,
+        alamat.catatan,
+        pesanan.metode_pembayaran,
+        IFNULL(diskon.nama, 'Tidak menggunakan kupon apapun') AS nama_diskon,
+        IFNULL(diskon.diskon, 0) AS diskon_nominal,
+        pesanan_detail.id_produk,
+        produk.nama AS nama_produk,
+        produk.harga AS harga_satuan,
+        pesanan_detail.jumlah,
+        pesanan_detail.ukuran,
+        produk.harga * pesanan_detail.jumlah AS subtotal_produk,
+        gambar_produk.gambar1 AS gambar_produk
+    FROM 
+        pesanan
+    LEFT JOIN users ON pesanan.user_id = users.id
+    LEFT JOIN alamat ON pesanan.alamat_id = alamat.id
+    LEFT JOIN diskon ON pesanan.id_diskon = diskon.id
+    LEFT JOIN pesanan_detail ON pesanan.id = pesanan_detail.id_pesanan
+    LEFT JOIN produk ON pesanan_detail.id_produk = produk.id
+    LEFT JOIN gambar_produk ON produk.id = gambar_produk.id_produk
+    WHERE 
+        pesanan.id = $id_pesanan
+";
+
+
+$result = mysqli_query($conn, $query);
+
+if (!$result) {
+    die("Query Error: " . mysqli_error($conn));
+}
+
+$data = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+// Hitung subtotal
+$subtotal = 0;
+foreach ($data as $item) {
+    $subtotal += $item['subtotal_produk'];
+}
+
+// Hitung total setelah diskon
+$total = $subtotal - $data[0]['diskon_nominal'];
 ?>
 
 <!DOCTYPE html>
@@ -34,20 +91,22 @@ if ($_SESSION['role'] !== 'admin') {
         </a>
         
         <div class="text-header">
-            <h2>ID1234567890</h2>
-            <h2>Dalam Pengiriman</h2>
+            <h2><?php echo $data[0]['kode_pesanan']; ?></h2>
+            <h2><?php echo ucfirst($data[0]['status']); ?></h2>
         </div>
 
         <div class="detail-content">
-            <div class="product-card">
-                <img src="../../assets/img/batik_1.jpg" alt="Gambar Produk">
+            <?php foreach ($data as $item): ?>
+            <div class="product-card" style="margin-bottom: 30px;">
+                <img src="../../assets/produk/<?php echo $item['gambar_produk']; ?>" alt="Gambar Produk">
                 <div class="product-detail">
-                    <h3>Nama Produk: Batik Cap Furing Rafiq</h3>
-                    <p>Ukuran : L</p>
-                    <p>Kuantitas : 2</p>
-                    <h2>Rp549.000</h2>
+                    <h3><?php echo $item['nama_produk']; ?></h3>
+                    <p>Ukuran: <?php echo strtoupper($item['ukuran']); ?></p>
+                    <p>Kuantitas: <?php echo $item['jumlah']; ?></p>
+                    <h2>Rp<?php echo number_format($item['harga_satuan']); ?></h2>
                 </div>
             </div>
+            <?php endforeach; ?>
         </div>
 
         <div class="detail-content">
@@ -55,34 +114,37 @@ if ($_SESSION['role'] !== 'admin') {
                 <tr>
                     <td class="label">Nama Pemesan</td>
                     <td class="separator">:</td>
-                    <td class="value">Nanda Arianto</td>
+                    <td class="value"><?php echo $data[0]['nama_pemesan']; ?></td>
                 </tr>
                 <tr>
-                    <td class="label">Lengkap</td>
+                    <td class="label">Alamat Lengkap</td>
                     <td class="separator">:</td>
-                    <td class="value">Kalimantan Timur, Samarinda, Samarinda Ilir, Jalan Biawan, 75116</td>
+                    <td class="value">
+                        <?php echo $data[0]['provinsi']; ?>, 
+                        <?php echo $data[0]['kota']; ?>, 
+                        <?php echo $data[0]['kecamatan']; ?>, 
+                        <?php echo $data[0]['alamat_jalan']; ?>, 
+                        <?php echo $data[0]['kodepos']; ?>
+                    </td>
                 </tr>
                 <tr>
                     <td class="label">Telepon</td>
                     <td class="separator">:</td>
-                    <td class="value">081234567890</td>
+                    <td class="value"><?php echo $data[0]['telepon']; ?></td>
                 </tr>
                 <tr>
                     <td class="label">Email</td>
                     <td class="separator">:</td>
-                    <td class="value">nandaarianto@gmail.com</td>
+                    <td class="value"><?php echo $data[0]['email']; ?></td>
                 </tr>
                 <tr>
                     <td class="label">Catatan</td>
                     <td class="separator">:</td>
-                    <td class="value">taro aja di depan pintu bang</td>
-                </tr>
-                <tr>
-                    <td class="label">Pinpoint</td>
+                    <td class="value"><?php echo $data[0]['catatan']; ?></td>
                 </tr>
             </table>
             <div class="map">
-                <iframe src="https://maps.google.com/maps?q=Samarinda,%20Jalan%20Biawan&t=&z=13&ie=UTF8&iwloc=&output=embed"></iframe>
+                <iframe src="https://maps.google.com/maps?q=<?php echo urlencode($data[0]['alamat_jalan']); ?>&t=&z=13&ie=UTF8&iwloc=&output=embed"></iframe>
             </div>
         </div>
 
@@ -92,32 +154,44 @@ if ($_SESSION['role'] !== 'admin') {
                 <tr>
                     <td class="label">Subtotal</td>
                     <td class="separator">:</td>
-                    <td class="value">Rp1.098.000</td>
+                    <td class="value">Rp<?php echo number_format($subtotal); ?></td>
                 </tr>
                 <tr>
                     <td class="label">Potongan Diskon</td>
                     <td class="separator">:</td>
-                    <td class="value">0</td>
+                    <td class="value"><?php echo $data[0]['nama_diskon']; ?></td>
+                </tr>
+                <tr>
+                    <td class="label">Nominal Diskon</td>
+                    <td class="separator">:</td>
+                    <td class="value">Rp<?php echo number_format($data[0]['diskon_nominal']); ?></td>
                 </tr>
                 <tr>
                     <td class="label">Metode Pembayaran</td>
                     <td class="separator">:</td>
-                    <td class="value">Transfer - Bank Mandiri</td>
+                    <td class="value"><?php echo $data[0]['metode_pembayaran']; ?></td>
                 </tr>
                 <tr>
                     <td class="label">TOTAL</td>
                     <td class="separator">:</td>
-                    <td class="value"><h2>Rp1.098.000</h2></td>
+                    <td class="value"><h2>Rp<?php echo number_format($total); ?></h2></td>
                 </tr>
             </table>
         </div>
 
         <div class="detail-content">
             <h2>Bukti Transfer</h2>
-            <div class="bukti-transfer">
-                Tidak ada bukti transfer
-                <!-- <img src="assets/img/transfer-proof.png" alt="Bukti Transfer"> -->
-            </div>
+                <?php if (!empty($data[0]['bukti_transfer'])): ?>
+                    <!-- Menampilkan gambar bukti transfer jika ada -->
+                <div class="img-tf">
+                    <img src="../../<?php echo $data[0]['bukti_transfer']; ?>" alt="Bukti Transfer">
+                </div>
+                <?php else: ?>
+                <div class="bukti-transfer">
+                    <!-- Menampilkan pesan jika bukti transfer tidak ada -->
+                    <p>Tidak ada bukti transfer</p>
+                </div>
+                <?php endif; ?>
         </div>
     </div>
     <script src="../../assets/js/main.js"></script>

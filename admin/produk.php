@@ -7,8 +7,18 @@ if ($_SESSION['role'] !== 'admin') {
     exit();
 }
 
-$query = "SELECT produk.id AS id_produk, produk.*, stok.id AS id_stok, stok.* FROM produk LEFT JOIN stok ON produk.id = stok.id_produk";
-$result = mysqli_query($conn, $query);
+$searchQuery = isset($_GET['search']) ? $_GET['search'] : '';
+
+// Jika ada pencarian, tambahkan kondisi WHERE ke query
+$query = "SELECT produk.id AS id_produk, produk.*, stok.id AS id_stok, stok.* 
+          FROM produk 
+          LEFT JOIN stok ON produk.id = stok.id_produk 
+          WHERE produk.nama LIKE ? OR produk.kode_produk LIKE ?";
+$stmt = $conn->prepare($query);
+$searchTerm = "%" . $searchQuery . "%";
+$stmt->bind_param('ss', $searchTerm, $searchTerm);
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
 
@@ -39,7 +49,7 @@ $result = mysqli_query($conn, $query);
             <div>
                 <button class="btn-header" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Tambah Produk</button>
                 <div>
-                    <input type="text" name="search" id="search" placeholder="Nama / Kode Produk">
+                    <input type="text" name="search" id="liveSearch" placeholder="Nama / Kode Produk" onkeyup="liveSearch()">
                     <button class="btn-header">Cari</button>
                 </div>
             </div>
@@ -56,7 +66,7 @@ $result = mysqli_query($conn, $query);
                         <th>Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="searchResults">
                     <?php $no = 1; ?>
                     <?php while ($row = $result->fetch_assoc()) : ?>
                         <tr>
@@ -316,6 +326,31 @@ $result = mysqli_query($conn, $query);
                 editModal.style.display = 'none';
             }
         }
+
+        function liveSearch() {
+            var searchTerm = document.getElementById("liveSearch").value;
+
+            // Buat objek XMLHttpRequest
+            var xhr = new XMLHttpRequest();
+
+            // Mengonfigurasi permintaan GET
+            xhr.open("GET", "produk.php?search=" + encodeURIComponent(searchTerm), true);
+
+            // Setel tipe respons ke HTML (karena kita akan mengembalikan tabel)
+            xhr.responseType = 'document';
+
+            // Kirim permintaan
+            xhr.send();
+
+            // Ketika permintaan selesai, perbarui tabel
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var tableBody = xhr.response.querySelector('tbody');
+                    document.getElementById('searchResults').innerHTML = tableBody.innerHTML;
+                }
+            };
+        }
+
     </script>
 
 </body>

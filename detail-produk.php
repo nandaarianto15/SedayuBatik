@@ -1,3 +1,45 @@
+<?php 
+require 'koneksi/koneksi.php';
+session_start();
+
+$id_produk = isset($_GET['id']) ? intval($_GET['id']) : 1;
+
+$queryProduk = "SELECT nama, harga, proses, material, deskripsi, kategori, sub_kategori 
+                FROM produk WHERE id = $id_produk";
+$resultProduk = mysqli_query($conn, $queryProduk);
+if (!$resultProduk) {
+    die("Error: " . mysqli_error($conn));
+}
+$produk = mysqli_fetch_assoc($resultProduk);
+
+$queryGambar = "SELECT * FROM gambar_produk WHERE id_produk = $id_produk";
+$resultGambar = mysqli_query($conn, $queryGambar);
+$gambar = mysqli_fetch_assoc($resultGambar) ?: [
+    'gambar1' => 'default.jpg',
+    'gambar2' => null,
+    'gambar3' => null,
+    'gambar4' => null,
+];
+
+$queryStok = "SELECT s, m, l, xl, xxl FROM stok WHERE id_produk = $id_produk";
+$resultStok = mysqli_query($conn, $queryStok);
+$stok = mysqli_fetch_assoc($resultStok) ?: [
+    's' => 0,
+    'm' => 0,
+    'l' => 0,
+    'xl' => 0,
+    'xxl' => 0,
+];
+
+$user_id = isset($_SESSION['id']) ? $_SESSION['id'] : null;
+if ($user_id) {
+    $queryWishlist = "SELECT * FROM wishlist WHERE user_id = $user_id AND id_produk = $id_produk";
+    $resultWishlist = mysqli_query($conn, $queryWishlist);
+    $isInWishlist = mysqli_num_rows($resultWishlist) > 0;
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +51,12 @@
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <style>
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
     /* Kontainer Utama */
     .container {
         max-width: 1200px;
@@ -136,7 +184,7 @@
 
     .sizes,
     .cart {
-        margin-bottom: 20px;
+        margin-bottom: 10px;
     }
 
     .sizes span,
@@ -161,6 +209,7 @@
         background-color: #fff;
         font-size: 14px;
         cursor: pointer;
+        transition: background-color 0.2s, color 0.2s;
     }
 
     .cart .plus {
@@ -199,10 +248,11 @@
     .add-to-cart .cart-btn {
         background-color: #267EBB;
         color: #fff;
+        transition: background-color 0.3s;
     }
 
     .add-to-cart .cart-btn:hover {
-        background-color: #457b9d;
+        background-color: #0A578F;
     }
 
     /* Bagikan */
@@ -217,10 +267,23 @@
         font-size: 20px;
         color: #333;
         cursor: pointer;
+        transition: color 0.2s;
     }
 
     .share i:hover {
         color: #267EBB;
+    }
+
+    .favorite button {
+        margin-top: 4px;
+        border: none;
+        background-color: transparent;
+    }
+
+    .favorite button i {
+        font-size: 20px;
+        cursor: pointer;
+        transition: color 0.2s;
     }
 
     /* Tab Deskripsi */
@@ -298,66 +361,89 @@
     <div class="container">
         <!-- Gambar Produk -->
         <div class="product-image">
-            <img src="img1.png" alt="Produk" class="main-image">
+            <img src="assets/produk/<?= $gambar['gambar1'] ?: 'default.jpg'; ?>" alt="Produk" class="main-image">
             <div class="product-thumbnails">
-                <img src="img1.png" alt="Thumb 1" class="thumbnail active">
-                <img src="img2.png" alt="Thumb 2" class="thumbnail">
-                <img src="img3.png" alt="Thumb 3" class="thumbnail">
-                <img src="img4.png" alt="Thumb 4" class="thumbnail">
+                <img src="assets/produk/<?= $gambar['gambar1'] ?: 'default.jpg'; ?>" alt="Thumb 1" class="thumbnail active">
+                <?php if (!empty($gambar['gambar2'])): ?>
+                    <img src="assets/produk/<?= $gambar['gambar2']; ?>" alt="Thumb 2" class="thumbnail">
+                <?php endif; ?>
+                <?php if (!empty($gambar['gambar3'])): ?>
+                    <img src="assets/produk/<?= $gambar['gambar3']; ?>" alt="Thumb 3" class="thumbnail">
+                <?php endif; ?>
+                <?php if (!empty($gambar['gambar4'])): ?>
+                    <img src="assets/produk/<?= $gambar['gambar4']; ?>" alt="Thumb 4" class="thumbnail">
+                <?php endif; ?>
             </div>
-        </div>
-
-        <div class="image-popup" id="imagePopup">
-            <!-- <span class="close-popup" id="closePopup">&times;</span> -->
-            <i class="fa-solid fa-x close-popup" id="closePopup"></i>
-            <img src="img1.png" alt="Popup Image" class="popup-image" id="popupImage">
         </div>
 
         <!-- Informasi Produk -->
         <div class="product-details">
             <div class="breadcrumbs">
-                <a href="#">Beranda</a> / <a href="#">Pria</a> / <a href="#">Batik Cap Furing Rafiq</a>
+                <a href="index.php">Beranda</a> / 
+                <a href="katalog.php?kategori=<?= $produk['kategori']; ?>"><?= ucfirst($produk['kategori']); ?></a> / 
+                <a href="#"><?= $produk['nama']; ?></a>
             </div>
-            <h1 class="product-title">Batik Cap Furing Rafiq</h1>
+            <h1 class="product-title"><?= $produk['nama']; ?></h1>
             <hr>
-            <h2 class="product-price">Rp549.000</h2>
+            <h2 class="product-price">Rp<?= number_format($produk['harga'], 0, ',', '.'); ?></h2>
             <div class="product-info">
-                <p>Material : Katun</p>
-                <p>Proses : Batik Print</p>
-                <p>Kategori : Lengan Pendek</p>
+                <p>Material: <?= $produk['material']; ?></p>
+                <p>Proses: <?= $produk['proses']; ?></p>
+                <p>Kategori: <?= $produk['sub_kategori']; ?></p>
             </div>
 
-            <!-- Ukuran -->
-            <div class="sizes">
-                <span>Ukuran:</span>
-                <button>S</button>
-                <button>M</button>
-                <button>L</button>
-                <button>XL</button>
-                <button>XXL</button>
-            </div>
+            <form action="proses/proses-keranjang.php" method="POST">
+                <input type="hidden" name="produk_id" value="<?= $id_produk; ?>">
+                <input type="hidden" name="harga" value="<?= $produk['harga']; ?>">
+                <input type="hidden" name="ukuran" id="ukuran" value="">
+                
+                <!-- Ukuran -->
+                <div class="sizes">
+                    <span>Ukuran:</span>
+                    <?php foreach ($stok as $ukuran => $jumlah): ?>
+                        <?php if ($jumlah > 0): ?>
+                            <button type="button" class="size-btn" data-size="<?= $ukuran ?>" data-stock="<?= $jumlah ?>">
+                                <?= strtoupper($ukuran); ?>
+                            </button>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+                <p style="margin:10px 0;" id="stock-display"></p>
 
-            <!-- Kuantitas -->
-            <div class="cart">
-                <p>Kuantitas</p>
-                <div class="cart-detail">
-                    <button class="min">-</button>
-                    <input type="text" value="1" style="width: 40px; height: 40px; text-align: center; border: 1px solid #ddd;">
-                    <button class="plus">+</button>
-                    <div class="add-to-cart">
-                        <button class="cart-btn">Tambah ke Keranjang</button>
+                <!-- Kuantitas -->
+                <div class="cart">
+                    <p>Kuantitas</p>
+                    <div class="cart-detail">
+                        <button type="button" class="min">-</button>
+                        <input type="number" name="kuantitas" value="1" min="1" style="width: 40px; height: 40px; text-align: center; border: 1px solid #ddd;">
+                        <button type="button" class="plus">+</button>
+                        <div class="add-to-cart">
+                            <button type="submit" name="add_to_cart" class="cart-btn">Tambah ke Keranjang</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </form>
 
-            <!-- Tombol -->
 
             <!-- Bagikan -->
-            <div class="share">
-                <span>Bagikan:</span>
-                <i class="fab fa-facebook-f"></i>
-                <i class="fab fa-instagram"></i>
-                <i class="fab fa-tiktok"></i>
+            <div style="display: flex; align-items:center; gap: 40px;">
+                <div class="share">
+                    <span>Bagikan:</span>
+                    <i class="fab fa-facebook-f"></i>
+                    <i class="fab fa-instagram"></i>
+                    <i class="fab fa-tiktok"></i>
+                </div>
+    
+                <div class="favorite">
+                    <span>Favorit:</span>
+                    <form action="proses/profil/proses-wishlist.php" method="POST">
+                        <input type="hidden" name="produk_id" value="<?= $id_produk; ?>">
+                        <input type="hidden" name="user_id" value="<?= $user_id; ?>">
+                        <button type="submit" name="add_to_wishlist" class="wishlist-btn">
+                            <i class="fas <?= $isInWishlist ? 'fa-heart' : 'fa-heart'; ?>" style="color: <?= $isInWishlist ? 'red' : 'black'; ?>"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -369,33 +455,23 @@
             <button class="tab-link" onclick="openTab(event, 'tabel-ukuran')">Tabel Ukuran</button>
         </div>
         <div id="deskripsi" class="tab-content active">
-            <p>Kemeja batik dengan design eksklusif memadukan keindahan batik tradisional dengan sentuhan modern yang unik. Jahitan berkualitas dan bahan ramah lingkungan karena 100% katun sehingga nyaman saat digunakan.</p>
+            <p><?= $produk['deskripsi']; ?></p>
         </div>
         <div id="tabel-ukuran" class="tab-content">
             <table>
                 <thead>
                     <tr>
                         <th>Size</th>
-                        <th>Tinggi Baju</th>
-                        <th>Lingkar Baju</th>
+                        <th>Stok</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>S</td>
-                        <td>74</td>
-                        <td>106</td>
-                    </tr>
-                    <tr>
-                        <td>M</td>
-                        <td>76</td>
-                        <td>108</td>
-                    </tr>
-                    <tr>
-                        <td>L</td>
-                        <td>78</td>
-                        <td>110</td>
-                    </tr>
+                    <?php foreach ($stok as $ukuran => $jumlah): ?>
+                        <tr>
+                            <td><?= strtoupper($ukuran); ?></td>
+                            <td><?= $jumlah; ?></td>
+                        </tr>
+                    <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
@@ -406,57 +482,85 @@
 </body>
 <script>
     function openTab(event, tabId) {
-        // Sembunyikan semua tab content
         const tabContents = document.querySelectorAll('.tab-content');
         tabContents.forEach(tab => tab.classList.remove('active'));
 
-        // Hapus status aktif dari semua tab-link
         const tabLinks = document.querySelectorAll('.tab-link');
         tabLinks.forEach(link => link.classList.remove('active'));
 
-        // Tampilkan tab yang diklik
         document.getElementById(tabId).classList.add('active');
-
-        // Tambahkan status aktif ke tombol yang diklik
         event.currentTarget.classList.add('active');
     }
 
     document.querySelectorAll('.thumbnail').forEach(thumb => {
         thumb.addEventListener('click', function () {
-            // Ganti gambar utama
             const mainImage = document.querySelector('.main-image');
             mainImage.src = this.src;
 
-            // Hapus class 'active' dari semua thumbnail
             document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
-
-            // Tambahkan class 'active' pada thumbnail yang diklik
             this.classList.add('active');
         });
     });
 
-    // Gambar utama di klik untuk membuka popup
-    document.querySelector('.main-image').addEventListener('click', function () {
-        const popup = document.getElementById('imagePopup');
-        const popupImage = document.getElementById('popupImage');
-        popupImage.src = this.src; 
-        popup.style.display = 'flex'; 
+    const sizeButtons = document.querySelectorAll('.sizes button');
+    const stockDisplay = document.getElementById('stock-display');
+    const quantityInput = document.querySelector('.cart-detail input');
+    const plusButton = document.querySelector('.cart .plus');
+    const minusButton = document.querySelector('.cart .min');
+    const ukuranInput = document.getElementById('ukuran');
+
+    sizeButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            sizeButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            const stock = button.getAttribute('data-stock');
+            stockDisplay.textContent = `Stok: ${stock}`;
+        });
+    });
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const sizeButtons = document.querySelectorAll('.size-btn');
+        const ukuranInput = document.getElementById('ukuran');
+        const stockDisplay = document.getElementById('stock-display');
+
+        sizeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Ambil ukuran yang dipilih
+                const ukuran = button.getAttribute('data-size');
+                const stok = button.getAttribute('data-stock');
+
+                // Set ukuran yang dipilih ke input hidden
+                ukuranInput.value = ukuran;
+
+                // Tampilkan stok untuk ukuran yang dipilih
+                stockDisplay.textContent = `Stok: ${stok}`;
+            });
+        });
     });
 
-    // Tombol close di klik untuk menutup popup
-    document.getElementById('closePopup').addEventListener('click', function () {
-        const popup = document.getElementById('imagePopup');
-        popup.style.display = 'none'; 
-    });
 
-    // Menutup popup dengan klik di luar gambar
-    document.getElementById('imagePopup').addEventListener('click', function (e) {
-        if (e.target === this) {
-            this.style.display = 'none';
+    plusButton.addEventListener('click', () => {
+        const activeButton = document.querySelector('.sizes button.active');
+        if (activeButton) {
+            const maxStock = parseInt(activeButton.getAttribute('data-stock'), 10);
+            let currentQuantity = parseInt(quantityInput.value, 10);
+            if (currentQuantity < maxStock) {
+                quantityInput.value = currentQuantity + 1;
+            } else {
+                alert("Jumlah kuantitas sudah mencapai stok maksimal.");
+            }
+        } else {
+            alert("Pilih ukuran terlebih dahulu.");
         }
     });
 
-
+    minusButton.addEventListener('click', () => {
+        let currentQuantity = parseInt(quantityInput.value, 10);
+        if (currentQuantity > 1) {
+            quantityInput.value = currentQuantity - 1;
+        }
+    });
 </script>
 
 </html>

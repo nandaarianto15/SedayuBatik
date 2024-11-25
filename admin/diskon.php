@@ -8,9 +8,16 @@ if ($_SESSION['role'] !== 'admin') {
     exit();
 }
 
-$query = "SELECT * FROM diskon";
-$result = $conn->query($query);
+// Check if search parameter is set
+$searchQuery = isset($_GET['search']) ? $_GET['search'] : '';
 
+// Query to get all discount records, optionally filtered by search
+$query = "SELECT * FROM diskon WHERE nama LIKE ? OR kode LIKE ?";
+$stmt = $conn->prepare($query);
+$searchTerm = "%" . $searchQuery . "%";
+$stmt->bind_param('ss', $searchTerm, $searchTerm);
+$stmt->execute();
+$result = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
@@ -36,15 +43,13 @@ $result = $conn->query($query);
         <!-- Diskon Content -->
         <h1>DISKON</h1>
         <div class="container">
-            
             <div>
-            <button class="btn-header" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Tambah Diskon</button>
+                <button class="btn-header" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Tambah Diskon</button>
                 <div>
-                    <input type="text" name="search" id="search" placeholder="Nama Diskon / Kode Penukaran">
+                    <input type="text" name="search" id="liveSearch" placeholder="Nama Diskon / Kode Penukaran" onkeyup="liveSearch()">
                     <button class="btn-header">Cari</button>
                 </div>
             </div>
-            
             <table>
                 <thead>
                     <tr>
@@ -55,14 +60,13 @@ $result = $conn->query($query);
                         <th>Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="searchResults">
                     <?php $no = 1; ?>
                     <?php while ($row = $result->fetch_assoc()) : ?>
                         <tr>
                             <td><?= $no++; ?></td>
                             <td><?= $row['nama']; ?></td>
                             <td><?= $row['kode']; ?></td>
-                            <!-- <td><?= $row['diskon']; ?></td> -->
                             <td>Rp<?= number_format($row['diskon'], 0, ',', '.'); ?></td>
                             <td>
                                 <a href="#" onclick="showUpdateModal(
@@ -90,7 +94,7 @@ $result = $conn->query($query);
                 <a href="#">&#62;</a>
             </div>
         </div>
-    </div>
+
 
     <!-- Modal Add Diskon -->
     <div id="addModal" class="modal">
@@ -168,6 +172,31 @@ $result = $conn->query($query);
                 closeUpdateModal();
             }
         }
+
+        function liveSearch() {
+            var searchTerm = document.getElementById("liveSearch").value;
+
+            // Create an XMLHttpRequest object
+            var xhr = new XMLHttpRequest();
+
+            // Configure the GET request
+            xhr.open("GET", "diskon.php?search=" + searchTerm, true);
+
+            // Set the response type to HTML (since we're returning a table)
+            xhr.responseType = 'document';
+
+            // Send the request
+            xhr.send();
+
+            // When the request is complete, update the table
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var tableBody = xhr.response.querySelector('tbody');
+                    document.getElementById('searchResults').innerHTML = tableBody.innerHTML;
+                }
+            };
+        }
+
     </script>
 
 

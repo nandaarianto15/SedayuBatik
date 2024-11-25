@@ -1,3 +1,9 @@
+<?php
+
+session_start();
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,7 +51,7 @@
 
 .search-bar {
     display: flex;
-    gap: 30px;
+    gap: 15px;
     margin-bottom: 20px;
 }
 
@@ -59,15 +65,16 @@
 
 .search-bar button {
     padding: 10px 30px;
-    background-color: #007bff;
+    background-color: #267EBB;
     color: #fff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 .search-bar button:hover {
-    background-color: #0056b3;
+    background-color: #0A578F;
 }
 
 .lokasi-item {

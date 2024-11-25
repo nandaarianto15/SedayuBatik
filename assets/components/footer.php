@@ -3,14 +3,14 @@
         <!-- Bagian Kontak dan Sosial Media -->
         <div class="footer-section contact">
             <img src="assets/img/logo1.png" width="75%" alt="Sedayu Batik Logo" class="logo">
-            <h4 class="title">Follow Kami</h4>
+            <h3 class="title">Follow Kami</h3>
             <div class="social-icons">
                 <a href="#"><i class="fab fa-facebook"></i></a>
                 <a href="#"><i class="fab fa-instagram"></i></a>
                 <a href="#"><i class="fab fa-twitter"></i></a>
                 <a href="#"><i class="fab fa-tiktok"></i></a>
             </div>
-            <h4 class="contact-title">Hubungi Kami</h4>
+            <h3 class="contact-title">Hubungi Kami</h3>
             <p>0812-3456-7890</p>
             <p>official@sedayubatik.co.id</p>
             <hr width="160px" style="margin: 10px 0;">
@@ -35,7 +35,7 @@
         <div class="footer-section">
             <p class="title">CUSTOMER</p>
             <ul>
-                <li><a href="#">Lacak Pesanan</a></li>
+                <li><a href="pesanansaya.php">Lacak Pesanan</a></li>
             </ul>
         </div>
 
@@ -43,10 +43,10 @@
         <div class="footer-section">
             <p class="title">PRODUK</p>
             <ul>
-                <li><a href="#">Pria</a></li>
-                <li><a href="#">Wanita</a></li>
-                <li><a href="#">Anak</a></li>
-                <li><a href="#">Pasangan</a></li>
+                <li><a href="katalog.php?kategori=pria">Pria</a></li>
+                <li><a href="katalog.php?kategori=wanita">Wanita</a></li>
+                <li><a href="katalog.php?kategori=anak">Anak</a></li>
+                <!-- <li><a href="#">Keluarga</a></li> -->
             </ul>
         </div>
 

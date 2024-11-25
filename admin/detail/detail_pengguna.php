@@ -11,7 +11,12 @@ if ($_SESSION['role'] !== 'admin') {
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
-    $sql = "SELECT * FROM users WHERE id = $id";
+    $sql = "SELECT 
+                u.nama, u.email, u.telepon, u.jenis_kelamin, u.tanggal_lahir, 
+                a.provinsi, a.kota, a.kecamatan, a.kodepos, a.alamat_jalan, a.catatan 
+            FROM users u
+            LEFT JOIN alamat a ON u.id = a.user_id
+            WHERE u.id = $id";
     $result = mysqli_query($conn, $sql);
 
     if (mysqli_num_rows($result) > 0) {
@@ -24,6 +29,7 @@ if (isset($_GET['id'])) {
     header("Location: ../pengguna.php");
     exit();
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -78,14 +84,22 @@ if (isset($_GET['id'])) {
                     <td class="value"><?php echo date("d - m - Y", strtotime($user['tanggal_lahir'])); ?></td>
                 </tr>
                 <tr>
-                    <td class="label">Alamat</td>
+                    <td class="label">Alamat Lengkap</td>
                     <td class="separator">:</td>
-                    <td class="value"><?php echo $user['alamat_lengkap']; ?></td>
+                    <td class="value">
+                        <?php 
+                        echo $user['alamat_jalan'] . ', ';
+                        echo $user['kecamatan'] . ', ';
+                        echo $user['kota'] . ', ';
+                        echo $user['provinsi'] . ', ';
+                        echo 'Kode Pos: ' . $user['kodepos']; 
+                        ?>
+                    </td>
                 </tr>
                 <tr>
                     <td class="label">Catatan</td>
                     <td class="separator">:</td>
-                    <td class="value"><?php echo $user['catatan_pesanan']; ?></td>
+                    <td class="value"><?php echo $user['catatan']; ?></td>
                 </tr>
             </table>
         </div>

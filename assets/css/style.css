@@ -20,6 +20,10 @@
     border-radius: 5px;
 }
 
+a {
+    text-decoration: none;
+}
+
 h1 {
     font-size: 36px;
     font-weight: 900;
@@ -39,7 +43,7 @@ h3 {
 }
 
 h4 {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 900;
     color: #001F3F;
 }
@@ -67,6 +71,10 @@ body {
     height: 72px;
 }
 
+.navbar.scrolled {
+    background-color: #fff;
+}
+
 .logo img {
     max-height: 35px;
 }
@@ -86,7 +94,7 @@ body {
     color: #333;
     font-size: 14px;
     font-weight: bold;
-    transition: color 0.3s ease;
+    transition: color 0.2s ease;
 }
 
 .menu li a:hover {
@@ -94,7 +102,7 @@ body {
 }
 
 .dropdown-menu {
-    opacity: 0;
+    opacity: 1;
     visibility: hidden;
     position: absolute;
     top: 100%;
@@ -108,7 +116,10 @@ body {
     transform: translateY(-10px);
     transition: opacity 0.3s ease, transform 0.3s ease; 
 }
-
+.dropdown-menu a{
+   display: block;
+   margin-left: 0!important;
+}
 .dropdown:hover .dropdown-menu {
     opacity: 1;
     visibility: visible;
@@ -129,7 +140,7 @@ body {
 }
 
 .icons a {
-    color: #333;
+    color: #001F3F;
     font-size: 14px;
     margin-left: 30px;
     text-decoration: none;
@@ -139,6 +150,23 @@ body {
 .icons a:hover {
     color: #267EBB;
 }
+
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.user-dropdown .dropdown-menu {
+    left: -80px;
+    min-width: 150px;
+}
+
+.user-dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
 
 
 
@@ -204,7 +232,7 @@ footer {
 .social-icons a {
     margin-right: 10px;
     font-size: 18px;
-    color: #000;
+    color: #001F3F;
     text-decoration: none;
     transition: color 0.3s ease;
 }
@@ -245,7 +273,7 @@ footer {
 .hero-slider {
     position: relative;
     width: 100%;
-    height: 40.5rem;
+    height: 100vh;
     /* height: 600px; */
     overflow: hidden;
     margin: 0 auto;
@@ -354,6 +382,8 @@ footer {
     color: #fff;
     position: absolute;
     width: 50%;
+    top: 45%;
+    left: 25%;
     text-align: center;
     line-height: 40px;
     opacity: 1;
@@ -400,17 +430,19 @@ footer {
 .product-cards {
     display: flex;
     justify-content: center;
-    gap: 65px;
+    gap: 55px;
 }
 
 .card-product {
-    width: 220px;
-    transition: transform 0.3s;
+    width: 230px;
+    padding: 8px;
+    border-radius: 10px;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .card-product:hover {
     transform: translateY(-5px);
-    /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .card-product img {
@@ -463,7 +495,7 @@ footer {
     margin-bottom: 2%;
 }
 
-.sidebar-katalog {
+.sidebar {
     width: 250px;
     background-color: #fff;
     padding: 20px;
@@ -474,42 +506,52 @@ footer {
 }
 
 
-.sidebar-katalog h3 {
+.sidebar h3 {
     border-bottom: 1px solid #CECECE;
     padding-bottom: 6%;
     margin-bottom: 10%;
 }
 
-.sidebar-katalog ul {
+.sidebar ul {
     list-style: none;
     padding: 0;
 }
 
-.sidebar-katalog ul li {
+.sidebar ul li {
     margin: 10px 0;
     position: relative;
     cursor: pointer;
 }
 
-.sidebar-katalog ul li a {
+.sidebar ul li a {
     text-decoration: none;
     color: #595959;
     font-size: 14px;
 }
 
-.sidebar-katalog ul li a:hover {
+.sidebar ul li a:hover {
     color: #000;
 }
 
-.sidebar-katalog ul li .toggle-icon {
+.sidebar ul li .toggle-icon {
     margin-left: auto;
     transform: translateY(-50%);
     font-size: 14px;
     transition: transform 0.3s ease;
 }
 
-.sidebar-katalog ul li.active .toggle-icon {
+.sidebar ul li.active .toggle-icon {
     transform: translateY(-50%) rotate(180deg); /* Ikon berputar saat aktif */
+}
+
+.sidebar .accordion-item.active > a {
+    color: #000; 
+    font-weight: bold; 
+}
+
+.sidebar .sub-category li a.active {
+    color: #000;
+    font-weight: bold; 
 }
 
 .category-title {
@@ -532,7 +574,7 @@ footer {
     color: #777;
 }
 
-.sidebar-katalog ul li.active .sub-category {
+.sidebar ul li.active .sub-category {
     max-height: 200px; /* Atur ketinggian maksimal */
 }
 
@@ -548,7 +590,7 @@ footer {
 .product-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 60px;
+    gap: 50px;
 }
 
 option:hover {

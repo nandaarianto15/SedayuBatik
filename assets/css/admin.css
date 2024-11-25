@@ -356,6 +356,12 @@ iframe {
     text-align: center;
 }
 
+.img-tf {
+    margin-top: 20px; 
+    padding: 0; 
+    text-align: center;
+}
+
 .product-content {
     display: grid;
     grid-template-columns: 1fr 1.5fr;

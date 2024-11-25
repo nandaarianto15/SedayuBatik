@@ -6,8 +6,23 @@ session_start();
 if (isset($_SESSION['id']) && isset($_SESSION['email'])) {
     $userName = $_SESSION['email']; 
     $role = $_SESSION['role'];
-    echo "<p>Selamat datang, $userName</p>";
-    echo "<p><a href='auth/logout.php'>Logout</a></p>";
+    // echo "<p>Selamat datang, $userName</p>";
+    // echo "<p><a href='auth/logout.php'>Logout</a></p>";
+}
+
+// Query untuk mengambil 4 produk terbaru
+$query = "SELECT p.id, p.nama, p.kategori, p.harga, g.gambar1 FROM produk p
+    JOIN gambar_produk g 
+    ON p.id = g.id_produk
+    ORDER BY p.id DESC 
+    LIMIT 4";
+
+$result = $conn->query($query);
+$newProducts = [];
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $newProducts[] = $row;
+    }
 }
 
 ?>
@@ -22,24 +37,55 @@ if (isset($_SESSION['id']) && isset($_SESSION['email'])) {
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>            
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
+<style>
+    body {
+        padding: 0;
+    }
+
+    .navbar {
+        background-color: transparent;
+        transition: background-color 0.3s ease;
+    }
+</style>
 <body>
     
     <?php include 'assets/components/navbar.php' ?>
 
     <section class="hero-slider">
-        <div class="slider active" style="background-image: url('assets/img/slider/img1.jpg');">
+        <div class="slider active" style="background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.5)), url('assets/img/slider/pria.jpg');">
             <div class="slider-content">
-                <h1>EKSKLUSIF</h1>
-                <p>Koleksi Wanita</p>
-                <a href="#">
+                <!-- <h1>EKSKLUSIF</h1>
+                <p>Koleksi Wanita</p> -->
+                <!-- <a href="#">
                     <button class="slider-button">Harus Punya!</button>
-                </a>
+                </a> -->
             </div>
         </div>
-        <div class="slider" style="background-image: url('assets/img/slider/img2.jpg');">
+        <div class="slider" style="background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.5)), url('assets/img/slider/wanita.jpg');">
             <div class="slider-content">
-                <h1>PERFECT COMBINATION</h1>
-                <p>A seamless blend of art and fashion batik is perfect combination</p>
+                <!-- <h1>EKSKLUSIF</h1>
+                <p>Koleksi Wanita</p> -->
+                <!-- <a href="#">
+                    <button class="slider-button">Harus Punya!</button>
+                </a> -->
+            </div>
+        </div>
+        <div class="slider" style="background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.5)), url('assets/img/slider/anak.jpg');">
+            <div class="slider-content">
+                <!-- <h1>EKSKLUSIF</h1>
+                <p>Koleksi Wanita</p> -->
+                <!-- <a href="#">
+                    <button class="slider-button">Harus Punya!</button>
+                </a> -->
+            </div>
+        </div>
+        <div class="slider" style="background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.5)), url('assets/img/slider/keluarga.jpg');">
+            <div class="slider-content">
+                <!-- <h1>EKSKLUSIF</h1>
+                <p>Koleksi Wanita</p> -->
+                <!-- <a href="#">
+                    <button class="slider-button">Harus Punya!</button>
+                </a> -->
             </div>
         </div>
 
@@ -51,71 +97,57 @@ if (isset($_SESSION['id']) && isset($_SESSION['email'])) {
         <div class="slider-indicators">
             <span class="dot active" data-slider="0"></span>
             <span class="dot" data-slider="1"></span>
+            <span class="dot" data-slider="2"></span>
+            <span class="dot" data-slider="3"></span>
         </div>
     </section>
 
     <section class="main-content">
         <div class="content">
-            <div class="overlay"></div>
-            <img src="assets/img/hero1.png" alt="">
-            <h1>KOLEKSI PRIA</h1>
+            <a href="katalog.php?kategori=pria">
+                <div class="overlay"></div>
+                <img src="assets/img/hero1.png" alt="">
+                <h1>KOLEKSI PRIA</h1>
+            </a>
         </div>
         <div class="content">
-            <div class="overlay"></div>
-            <img src="assets/img/hero2.png" alt="">
-            <h1>KOLEKSI ANAK</h1>
+            <a href="katalog.php?kategori=anak">
+                <div class="overlay"></div>
+                <img src="assets/img/hero2.png" alt="">
+                <h1>KOLEKSI ANAK</h1>
+            </a>
         </div>
         <div class="content">
-            <div class="overlay"></div>
-            <img src="assets/img/hero3.png" alt="">
-            <h1>KOLEKSI WANITA</h1>
+            <a href="katalog.php?kategori=wanita">
+                <div class="overlay"></div>
+                <img src="assets/img/hero3.png" alt="">
+                <h1>KOLEKSI WANITA</h1>
+            </a>
         </div>
     </section>
 
     <section class="new-product">
         <h1>Kedatangan Baru</h1>
         <div class="product-cards">
-            <!-- Card 1 -->
-            <div class="card-product">
-                <img src="img1.png" alt="Product 1">
-                <div class="card-detail">
-                    <p class="category">Lengan Pendek</p>
-                    <h3 class="product-name">Batik cap Gusti Gina</h3>
-                    <p class="price">Rp279.000</p>
-                </div>
-            </div>
-
-            <!-- Card 2 -->
-            <div class="card-product">
-                <img src="img2.png" alt="Product 2">
-                <div class="card-detail">
-                    <p class="category">Lengan Pendek</p>
-                    <h3 class="product-name">Batik Semi sutra cap Fahmi</h3>
-                    <p class="price">Rp439.000</p>
-                </div>
-            </div>
-
-            <!-- Card 3 -->
-            <div class="card-product">
-                <img src="img3.png" alt="Product 3">
-                <div class="card-detail">
-                    <p class="category">Lengan Pendek</p>
-                    <h3 class="product-name">Batik Furing cap Robin Rianty</h3>
-                    <p class="price">Rp439.000</p>
-                </div>
-            </div>
-
-            <!-- Card 4 -->
-            <div class="card-product">
-                <img src="img4.png" alt="Product 4">
-                <div class="card-detail">
-                    <p class="category">Lengan Pendek</p>
-                    <h3 class="product-name">Batik Furing cap Harsha Hima</h3>
-                    <p class="price">Rp439.000</p>
-                </div>
-            </div>
+            <?php if (!empty($newProducts)): ?>
+                <?php foreach ($newProducts as $product): ?>
+                    <a href="detail-produk.php?id=<?= $product['id'] ?>">
+                        <div class="card-product">
+                            <img src="assets/produk/<?= $product['gambar1'] ?>" alt="<?= $product['nama'] ?>">
+                            <div class="card-detail">
+                                <p class="category"><?= ucfirst($product['kategori']) ?></p>
+                                <h3 class="product-name"><?= $product['nama'] ?></h3>
+                                <p class="price">Rp<?= number_format($product['harga'], 0, ',', '.') ?></p>
+                            </div>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>Belum ada produk baru.</p>
+            <?php endif; ?>
         </div>
     </section>
+
 
     <section class="about">
         <h1>Hai, Kami Sedayu Batik</h1>
@@ -154,6 +186,17 @@ if (isset($_SESSION['id']) && isset($_SESSION['email'])) {
         setInterval(() => {
             cangeSlider(currentslider + 1);
         }, 5000);
+
+        
+        // Ganti background color navbar saat scroll
+        window.onscroll = function() {
+            const navbar = document.getElementById("navbar");
+            if (window.pageYOffset > 50) { 
+                navbar.classList.add("scrolled");
+            } else {
+                navbar.classList.remove("scrolled");
+            }
+        };
     </script>
 
 </body>
