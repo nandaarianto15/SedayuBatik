@@ -397,6 +397,16 @@ iframe {
     object-fit: cover;
     border-radius: 5px;
     cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.3s, box-shadow 0.3s;
+}
+
+.thumbnail.active {
+    opacity: 1;
+}
+
+.thumbnail:hover {
+    opacity: 0.8;
 }
 
 .stock-table {

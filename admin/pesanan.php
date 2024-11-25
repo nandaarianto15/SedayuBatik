@@ -8,10 +8,27 @@ if ($_SESSION['role'] !== 'admin') {
     exit();
 }
 
-// Periksa apakah ada parameter pencarian
 $searchQuery = isset($_GET['search']) ? $_GET['search'] : '';
 
-// Query dengan filter berdasarkan pencarian
+// Pagination setup
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1; 
+$limit = 12; 
+$offset = ($page - 1) * $limit;
+$countQuery = "
+    SELECT COUNT(*) AS total 
+    FROM pesanan p
+    JOIN users u ON p.user_id = u.id
+    WHERE p.kode_pesanan LIKE ? OR u.nama LIKE ?
+";
+$countStmt = $conn->prepare($countQuery);
+$searchTerm = "%" . $searchQuery . "%";
+$countStmt->bind_param('ss', $searchTerm, $searchTerm);
+$countStmt->execute();
+$countResult = $countStmt->get_result();
+$countRow = $countResult->fetch_assoc();
+$totalItems = $countRow['total'];
+$totalPages = ceil($totalItems / $limit); 
+
 $query = "
     SELECT 
         p.id AS pesanan_id, 
@@ -23,14 +40,15 @@ $query = "
     JOIN users u ON p.user_id = u.id
     WHERE p.kode_pesanan LIKE ? OR u.nama LIKE ?
     ORDER BY p.id DESC
+    LIMIT ? OFFSET ?
 ";
 
 $stmt = $conn->prepare($query);
-$searchTerm = "%" . $searchQuery . "%";
-$stmt->bind_param('ss', $searchTerm, $searchTerm);
+$stmt->bind_param('ssii', $searchTerm, $searchTerm, $limit, $offset);
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -55,7 +73,6 @@ $result = $stmt->get_result();
         <!-- Pesanan Content -->
         <h1>PESANAN</h1>
         <div class="container">
-
             <input type="text" name="search" id="liveSearch" placeholder="ID Pesanan" onkeyup="liveSearch()">
             <button class="btn-header">Cari</button>
             
@@ -72,7 +89,7 @@ $result = $stmt->get_result();
                     </tr>
                 </thead>
                 <tbody id="searchResults">
-                    <?php $no = 1; ?>
+                    <?php $no = $offset + 1; ?>
                     <?php while ($row = $result->fetch_assoc()) : ?>
                         <tr>
                             <td><?= $no++; ?></td>
@@ -101,13 +118,47 @@ $result = $stmt->get_result();
                 </tbody>
             </table>
 
-            <div class="pagination">
-                <a href="#">&#60;</a>
-                <a href="#" class="active">1</a>
-                <a href="#">2</a>
-                <a href="#">3</a>
-                <a href="#">&#62;</a>
-            </div>
+            <!-- Pagination -->
+            <?php if ($totalItems > $limit): ?>
+                <div class="pagination">
+                    <!-- Previous Page Link -->
+                    <?php if ($page > 1) : ?>
+                        <a href="?page=<?= $page - 1; ?>">&#60;</a>
+                    <?php endif; ?>
+
+                    <?php 
+                    $pagesToShow = [];
+
+                    $pagesToShow[] = 1;
+                    
+                    if ($page > 3) {
+                        $pagesToShow[] = '...';
+                    }
+
+                    for ($i = max(2, $page - 1); $i <= min($totalPages - 1, $page + 1); $i++) {
+                        $pagesToShow[] = $i;
+                    }
+                    if ($page < $totalPages - 2) {
+                        $pagesToShow[] = '...';
+                    }
+
+                    if ($totalPages > 1) {
+                        $pagesToShow[] = $totalPages;
+                    }
+
+                    foreach ($pagesToShow as $p) {
+                        if ($p === '...') {
+                            echo "<a href='#'>...</a>";
+                        } else {
+                            echo "<a href='?page=$p' class='" . ($p == $page ? 'active' : '') . "'>$p</a>";
+                        }
+                    }
+                    ?>
+                    <?php if ($page < $totalPages) : ?>
+                        <a href="?page=<?= $page + 1; ?>">&#62;</a>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
         </div>
 
         <!-- Modal Update Pesanan -->

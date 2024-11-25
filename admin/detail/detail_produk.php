@@ -64,7 +64,7 @@ if (!$produk) {
             <div class="product-gallery">
                 <img src="../../assets/produk/<?= $produk['gambar1']; ?>" alt="<?= $produk['nama']; ?>" class="main-image">
                 <div class="thumbnail-container">
-                    <img src="../../assets/produk/<?= $produk['gambar1']; ?>" alt="Thumbnail 1" class="thumbnail">
+                    <img src="../../assets/produk/<?= $produk['gambar1']; ?>" alt="Thumbnail 1" class="thumbnail active">
                     <img src="../../assets/produk/<?= $produk['gambar2']; ?>" alt="Thumbnail 2" class="thumbnail">
                     <img src="../../assets/produk/<?= $produk['gambar3']; ?>" alt="Thumbnail 3" class="thumbnail">
                     <img src="../../assets/produk/<?= $produk['gambar4']; ?>" alt="Thumbnail 4" class="thumbnail">
@@ -142,11 +142,14 @@ if (!$produk) {
 
     <script>
         document.querySelectorAll('.thumbnail').forEach(thumb => {
-            thumb.addEventListener('click', function() {
-                const mainImage = document.querySelector('.main-image');
-                mainImage.src = this.src;
-            });
+        thumb.addEventListener('click', function () {
+            const mainImage = document.querySelector('.main-image');
+            mainImage.src = this.src;
+
+            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
         });
+    });
     </script>
 </body>
 </html>

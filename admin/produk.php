@@ -8,19 +8,30 @@ if ($_SESSION['role'] !== 'admin') {
 }
 
 $searchQuery = isset($_GET['search']) ? $_GET['search'] : '';
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1; 
+$limit = 12;
+$offset = ($page - 1) * $limit; 
 
-// Jika ada pencarian, tambahkan kondisi WHERE ke query
+$countQuery = "SELECT COUNT(*) AS total FROM produk WHERE nama LIKE ? OR kode_produk LIKE ?";
+$countStmt = $conn->prepare($countQuery);
+$searchTerm = "%" . $searchQuery . "%";
+$countStmt->bind_param('ss', $searchTerm, $searchTerm);
+$countStmt->execute();
+$countResult = $countStmt->get_result();
+$countRow = $countResult->fetch_assoc();
+$totalItems = $countRow['total'];
+$totalPages = ceil($totalItems / $limit); 
+
 $query = "SELECT produk.id AS id_produk, produk.*, stok.id AS id_stok, stok.* 
           FROM produk 
           LEFT JOIN stok ON produk.id = stok.id_produk 
-          WHERE produk.nama LIKE ? OR produk.kode_produk LIKE ?";
+          WHERE produk.nama LIKE ? OR produk.kode_produk LIKE ? 
+          LIMIT ? OFFSET ?";
 $stmt = $conn->prepare($query);
-$searchTerm = "%" . $searchQuery . "%";
-$stmt->bind_param('ss', $searchTerm, $searchTerm);
+$stmt->bind_param('ssii', $searchTerm, $searchTerm, $limit, $offset);
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -45,7 +56,6 @@ $result = $stmt->get_result();
         <!-- Produk Content -->
         <h1>PRODUK</h1>
         <div class="container">
-
             <div>
                 <button class="btn-header" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> Tambah Produk</button>
                 <div>
@@ -67,7 +77,7 @@ $result = $stmt->get_result();
                     </tr>
                 </thead>
                 <tbody id="searchResults">
-                    <?php $no = 1; ?>
+                    <?php $no = $offset + 1; ?>
                     <?php while ($row = $result->fetch_assoc()) : ?>
                         <tr>
                             <td><?= $no++; ?></td>
@@ -107,16 +117,46 @@ $result = $stmt->get_result();
                     <?php endwhile; ?>
                 </tbody>
             </table>
+            <?php if ($totalItems > $limit): ?>
+                <div class="pagination">
+                    <?php if ($page > 1) : ?>
+                        <a href="?page=<?= $page - 1; ?>">&#60;</a>
+                    <?php endif; ?>
+                    <?php 
+                    $pagesToShow = [];
 
-            <div class="pagination">
-                <a href="#">&#60;</a>
-                <a href="#" class="active">1</a>
-                <a href="#">2</a>
-                <a href="#">3</a>
-                <a href="#">&#62;</a>
-            </div>
+                    $pagesToShow[] = 1;
+                    
+                    if ($page > 3) {
+                        $pagesToShow[] = '...';
+                    }
+
+                    for ($i = max(2, $page - 1); $i <= min($totalPages - 1, $page + 1); $i++) {
+                        $pagesToShow[] = $i;
+                    }
+
+                    if ($page < $totalPages - 2) {
+                        $pagesToShow[] = '...';
+                    }
+
+                    if ($totalPages > 1) {
+                        $pagesToShow[] = $totalPages;
+                    }
+
+                    foreach ($pagesToShow as $p) {
+                        if ($p === '...') {
+                            echo "<a href='#'>...</a>";
+                        } else {
+                            echo "<a href='?page=$p' class='" . ($p == $page ? 'active' : '') . "'>$p</a>";
+                        }
+                    }
+                    ?>
+                    <?php if ($page < $totalPages) : ?>
+                        <a href="?page=<?= $page + 1; ?>">&#62;</a>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
         </div>
-
     </div>
 
     <!-- Modal Tambah Produk -->

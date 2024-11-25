@@ -8,14 +8,24 @@ if ($_SESSION['role'] !== 'admin') {
     exit();
 }
 
-// Check if search parameter is set
 $searchQuery = isset($_GET['search']) ? $_GET['search'] : '';
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1; 
+$limit = 12; 
+$offset = ($page - 1) * $limit; 
 
-// Query to get all discount records, optionally filtered by search
-$query = "SELECT * FROM diskon WHERE nama LIKE ? OR kode LIKE ?";
-$stmt = $conn->prepare($query);
+$countQuery = "SELECT COUNT(*) AS total FROM diskon WHERE nama LIKE ? OR kode LIKE ?";
+$countStmt = $conn->prepare($countQuery);
 $searchTerm = "%" . $searchQuery . "%";
-$stmt->bind_param('ss', $searchTerm, $searchTerm);
+$countStmt->bind_param('ss', $searchTerm, $searchTerm);
+$countStmt->execute();
+$countResult = $countStmt->get_result();
+$countRow = $countResult->fetch_assoc();
+$totalItems = $countRow['total'];
+$totalPages = ceil($totalItems / $limit); 
+
+$query = "SELECT * FROM diskon WHERE nama LIKE ? OR kode LIKE ? LIMIT ? OFFSET ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param('ssii', $searchTerm, $searchTerm, $limit, $offset);
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
@@ -86,13 +96,45 @@ $result = $stmt->get_result();
                 </tbody>
             </table>
 
-            <div class="pagination">
-                <a href="#">&#60;</a>
-                <a href="#" class="active">1</a>
-                <a href="#">2</a>
-                <a href="#">3</a>
-                <a href="#">&#62;</a>
-            </div>
+            <?php if ($totalItems > $limit): ?>
+                <div class="pagination">
+                    <?php if ($page > 1) : ?>
+                        <a href="?page=<?= $page - 1; ?>&search=<?= urlencode($searchQuery); ?>">&#60;</a>
+                    <?php endif; ?>
+                    <?php 
+                    $pagesToShow = [];
+                    $pagesToShow[] = 1;
+                
+                    if ($page > 3) {
+                        $pagesToShow[] = '...';
+                    }
+
+                    for ($i = max(2, $page - 1); $i <= min($totalPages - 1, $page + 1); $i++) {
+                        $pagesToShow[] = $i;
+                    }
+
+                    if ($page < $totalPages - 2) {
+                        $pagesToShow[] = '...';
+                    }
+
+                    if ($totalPages > 1) {
+                        $pagesToShow[] = $totalPages;
+                    }
+
+                    foreach ($pagesToShow as $p) {
+                        if ($p === '...') {
+                            echo "<a href='#'>...</a>";
+                        } else {
+                            echo "<a href='?page=$p&search=" . urlencode($searchQuery) . "' class='" . ($p == $page ? 'active' : '') . "'>$p</a>";
+                        }
+                    }
+                    ?>
+                    <?php if ($page < $totalPages) : ?>
+                        <a href="?page=<?= $page + 1; ?>&search=<?= urlencode($searchQuery); ?>">&#62;</a>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+
         </div>
 
 

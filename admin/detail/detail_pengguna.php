@@ -104,13 +104,13 @@ if (isset($_GET['id'])) {
             </table>
         </div>
 
-        <div class="detail-content">
+        <!-- <div class="detail-content">
             <p>Pinpoint</p>
             <div class="map">
-                <!-- <iframe src="https://maps.google.com/maps?q=<?php echo urlencode($user['pinpoint']); ?>&t=&z=13&ie=UTF8&iwloc=&output=embed"></iframe> -->
+                <iframe src="https://maps.google.com/maps?q=<?php echo urlencode($user['alamat_jalan']); ?>&t=&z=13&ie=UTF8&iwloc=&output=embed"></iframe>
                 <iframe src="https://maps.google.com/maps?q=Samarinda,%20Jalan%20Biawan&t=&z=13&ie=UTF8&iwloc=&output=embed"></iframe>
             </div>
-        </div>
+        </div> -->
     </div>
 
     <script src="../../assets/js/main.js"></script>
