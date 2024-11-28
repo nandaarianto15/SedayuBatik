@@ -32,17 +32,22 @@ if ($result && mysqli_num_rows($result) > 0) {
 
 $address_data = [];
 $result_address = mysqli_query($conn, "SELECT * FROM alamat WHERE user_id = $user_id");
-if ($result_address && mysqli_num_rows($result_address) > 0) {
+if (!$result_address || mysqli_num_rows($result_address) == 0) {
+    $_SESSION['error'] = 'Harus melengkapi alamat terlebih dahulu.';
+    header('Location: profil.php');
+    exit();
+} else {
     $address_data = mysqli_fetch_assoc($result_address);
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Halaman Checkout</title>
+    <title>Checkout | Sedayu Batik</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>

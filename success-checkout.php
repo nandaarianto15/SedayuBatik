@@ -57,7 +57,8 @@ $result_order->data_seek(0);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css?family=Poppins:400,600&display=swap" rel="stylesheet">
-    <title>Konfirmasi Pesanan - Sedayu Batik</title>
+    <title>Konfirmasi Pesanan | Sedayu Batik</title>
+    <link rel="icon" type="image/png" href="assets/img/icon.png">
     <style>
         .total {
            display: flex; 
