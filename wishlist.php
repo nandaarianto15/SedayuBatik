@@ -5,7 +5,7 @@ session_start();
 $user_id = isset($_SESSION['id']) ? $_SESSION['id'] : null;
 
 if (!$user_id) {
-    echo "Anda harus login untuk melihat daftar keinginan.";
+    header("Location: auth/login.php"); 
     exit();
 }
 
@@ -152,7 +152,7 @@ $resultWishlist = mysqli_query($conn, $queryWishlist);
         <ul>
             <li class="accordion-item">
                 <i class="fas fa-user"></i>
-                <a href="#">Akun </a>
+                <a href="#">Akun Saya</a>
                 <!-- <i class="fa-solid fa-chevron-down toggle-icon" style="position:absolute; top:12px; right: 0;"></i> -->
                 <ul class="sub-category">
                     <li><a href="profil.php">Profil</a></li>

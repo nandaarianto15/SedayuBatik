@@ -322,6 +322,47 @@ button.checkout-btn:hover {
     color: #ff3030;
 }
 
+/* Styling untuk modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Styling untuk konten modal */
+.modal-content {
+    position: relative;
+    background-color: #fff;
+    border-radius: 8px;
+    margin: 8% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 500px;
+    text-align: center;
+}
+
+/* Styling untuk tombol close (X) */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #333;
+    cursor: pointer;
+}
+
+.close-btn i {
+    font-size: 20px; /* Ukuran ikon X */
+}
+
 </style>
 <body>
     <div class="header">
@@ -429,6 +470,8 @@ button.checkout-btn:hover {
                             <i class="fas fa-chevron-down chevron" style="position: absolute; right: 0;"></i>
                         </button>
                         <div class="accordion-content">
+                            <label><input type="radio" name="payment_method" value="dana" required> Dana - 082353653223</label>
+                            <label><input type="radio" name="payment_method" value="gopay" required> Gopay - 082353653223</label>
                             <label><input type="radio" name="payment_method" value="qris" required> Qris</label>
                         </div>
                     </div>
@@ -444,6 +487,17 @@ button.checkout-btn:hover {
         </form>
 
     </div>
+
+    <div class="modal" id="qris-modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <img src="assets/img/qrcode.jpg" alt="QR Code" width="100%">
+        </div>
+    </div>
+
+
 </body>
 <script>
     document.querySelectorAll('.accordion-btn').forEach(button => {
@@ -469,6 +523,32 @@ button.checkout-btn:hover {
             firstAccordionContent.style.display = "block";
         }
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const qrisModal = document.getElementById("qris-modal");
+        const qrisCode = document.getElementById("qris-code");
+
+        document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+            radio.addEventListener("change", function () {
+                if (this.value === "qris") {
+                    qrisModal.style.display = "block";
+                }
+            });
+        });
+
+        function closeModal() {
+            qrisModal.style.display = "none";
+        }
+
+        document.querySelector(".close-btn").addEventListener("click", closeModal);
+
+        window.addEventListener("click", function (event) {
+            if (event.target === qrisModal) {
+                closeModal();
+            }
+        });
+    });
+
 
 </script>
 </html>

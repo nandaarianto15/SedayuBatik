@@ -41,7 +41,9 @@ if ($isLoggedIn) {
 
 <nav class="navbar" id="navbar">
     <div class="logo">
-        <img src="assets/img/logo1.png" alt="Logo" width="100%">
+        <a href="index.php">
+            <img src="assets/img/logo1.png" alt="Logo" width="100%">
+        </a>
     </div>
     <ul class="menu">
         <li>

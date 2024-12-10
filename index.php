@@ -36,6 +36,7 @@ if ($result->num_rows > 0) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>  
     <link rel="icon" type="image/png" href="assets/img/icon.png">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <style>
@@ -64,29 +65,14 @@ if ($result->num_rows > 0) {
         </div>
         <div class="slider" style="background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.5)), url('assets/img/slider/wanita.jpg');">
             <div class="slider-content">
-                <!-- <h1>EKSKLUSIF</h1>
-                <p>Koleksi Wanita</p> -->
-                <!-- <a href="#">
-                    <button class="slider-button">Harus Punya!</button>
-                </a> -->
             </div>
         </div>
         <div class="slider" style="background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.5)), url('assets/img/slider/anak.jpg');">
             <div class="slider-content">
-                <!-- <h1>EKSKLUSIF</h1>
-                <p>Koleksi Wanita</p> -->
-                <!-- <a href="#">
-                    <button class="slider-button">Harus Punya!</button>
-                </a> -->
             </div>
         </div>
         <div class="slider" style="background-image: linear-gradient(rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.5)), url('assets/img/slider/keluarga.jpg');">
             <div class="slider-content">
-                <!-- <h1>EKSKLUSIF</h1>
-                <p>Koleksi Wanita</p> -->
-                <!-- <a href="#">
-                    <button class="slider-button">Harus Punya!</button>
-                </a> -->
             </div>
         </div>
 
@@ -157,6 +143,7 @@ if ($result->num_rows > 0) {
 
     <?php include 'assets/components/footer.php' ?>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
     <script>
         const sliders = document.querySelectorAll('.slider');
         const dots = document.querySelectorAll('.dot');
@@ -199,6 +186,35 @@ if ($result->num_rows > 0) {
             }
         };
     </script>
+    
+    <?php if (isset($_SESSION['success'])): ?>
+        <script>
+            Swal.fire({
+                title: 'Selamat Datang!',
+                text: '<?php echo $_SESSION['success']; ?>',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        </script>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
 
+    <?php
+        if (isset($_GET['success']) && $_GET['success'] === 'added') {
+            echo "<script>
+                window.onload = function() {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: 'Produk berhasil ditambahkan ke keranjang.',
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            confirmButton: 'swal2-confirm'
+                        }
+                    });
+                }
+            </script>";
+        }
+    ?>
 </body>
 </html>

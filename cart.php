@@ -3,7 +3,7 @@ session_start();
 require 'koneksi/koneksi.php';
 
 if (!isset($_SESSION['id'])) {
-    header('Location: index.php');
+    header('Location: auth/login.php');
     exit();
 }
 
@@ -36,6 +36,7 @@ if (mysqli_num_rows($result) > 0) {
     <title>Keranjang Belanja | Sedayu Batik</title>
     <link rel="icon" type="image/png" href="assets/img/icon.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Poppins:400,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -371,6 +372,7 @@ if (mysqli_num_rows($result) > 0) {
     <?php include 'assets/components/footer.php'; ?>
 </body>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
 <script>
     const couponModal = document.getElementById('couponModal');
 
@@ -398,7 +400,12 @@ if (mysqli_num_rows($result) > 0) {
         const couponCode = document.querySelector('#couponModal input').value;
 
         if (couponCode.trim() === '') {
-            alert('Kode kupon tidak boleh kosong!');
+            Swal.fire({
+                icon: 'warning',
+                title: 'Peringatan',
+                text: 'Kode kupon tidak boleh kosong!',
+                confirmButtonText: 'OK'
+            });
             return;
         }
 
@@ -408,25 +415,49 @@ if (mysqli_num_rows($result) > 0) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ coupon: couponCode })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Kupon berhasil diterapkan! Diskon: Rp' + data.discount.toLocaleString('id-ID'));
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: `Kupon berhasil diterapkan! Diskon: Rp${parseInt(data.discount).toLocaleString('id-ID')}`,
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            confirmButton: 'swal2-confirm'
+                        }
+                    });
 
-                // Update tampilan diskon dan total setelah diskon
-                document.querySelector('.cart-summary p span').textContent = 'Rp' + data.discount.toLocaleString('id-ID');
-                document.querySelector('.cart-summary h3 span.highlight').textContent =
-                    'Rp' + data.total_after_discount.toLocaleString('id-ID');
+                    // Update tampilan diskon
+                    document.querySelector('.cart-summary p span').textContent = 'Rp' + parseInt(data.discount).toLocaleString('id-ID');
+                    document.querySelector('.cart-summary h3 span.highlight').textContent =
+                        'Rp' + parseInt(data.total_after_discount).toLocaleString('id-ID');
 
-                closeModal();
-            } else {
-                alert(data.message || 'Kupon tidak valid.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan saat memproses kupon.');
-        });
+                    closeModal();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: data.message || 'Kupon tidak valid.',
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            confirmButton: 'swal2-confirm'
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Kesalahan',
+                    text: 'Terjadi kesalahan saat memproses kupon.',
+                    confirmButtonText: 'OK',
+                    customClass: {
+                        confirmButton: 'swal2-confirm'
+                    }
+                });
+            });
     }
 
 </script>

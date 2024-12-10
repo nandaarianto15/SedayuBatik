@@ -3,7 +3,7 @@ require 'koneksi/koneksi.php';
 session_start();
 
 if (!isset($_SESSION['id'])) {
-    header('Location: ../login.php');
+    header('Location: auth/login.php');
     exit();
 }
 
@@ -57,6 +57,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     <title>Pesanan Saya | Sedayu Batik</title>
     <link rel="icon" type="image/png" href="assets/img/icon.png">        
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>            
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -147,7 +148,7 @@ while ($row = mysqli_fetch_assoc($result)) {
 
     .modal-content {
         background-color: #fff;
-        margin: 10% auto;
+        margin: 8% auto;
         padding: 20px;
         border-radius: 10px;
         width: 80%;
@@ -386,6 +387,9 @@ while ($row = mysqli_fetch_assoc($result)) {
                 <p>Bank BCA - 0987654321</p>
                 <p>Bank BNI - 4567890123</p>
                 <p>Bank BRI - 4567890123</p>
+                <button style="background-color: transparent; border:none; padding:0; margin:0" onclick="showQRISPopup()">
+                    <p style="margin: 0;">QRIS <i class="fa-solid fa-arrow-up-right-from-square"></i></p>
+                </button>
                 <form action="proses/kirim-transfer.php" method="POST" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="">Sisipkan Bukti Transfer</label>
@@ -420,8 +424,15 @@ while ($row = mysqli_fetch_assoc($result)) {
         </div>
     </div>
 
-
+    <div id="qrisModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeQRISPopup()"><i class="fa-solid fa-xmark"></i></span>
+            <img src="assets/img/qrcode.jpg" alt="QRIS QR Code" class="popup-image">
+        </div>
+    </div>
 </body>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
 <script>
     const fileInput = document.getElementById('upload');
     const fileStatus = document.querySelector('.file-status');
@@ -538,6 +549,15 @@ while ($row = mysqli_fetch_assoc($result)) {
         document.getElementById('popupModal').style.display = 'none';
     }
 
+    function showQRISPopup() {
+        document.getElementById('qrisModal').style.display = 'block';
+    }
+
+    function closeQRISPopup() {
+        document.getElementById('qrisModal').style.display = 'none';
+    }
+
+
     window.onclick = function (event) {
         const modal = document.getElementById('popupModal');
         if (event.target === modal) {
@@ -545,4 +565,22 @@ while ($row = mysqli_fetch_assoc($result)) {
         }
     }
 </script>
+
+<?php
+// Setelah berhasil mengupload file, kirimkan notifikasi ke front-end
+if (isset($_GET['upload_success']) && $_GET['upload_success'] == '1') {
+    echo "<script>
+        Swal.fire({
+            title: 'Upload Berhasil!',
+            text: 'Bukti transfer berhasil diunggah.',
+            icon: 'success',
+            confirmButtonText: 'Tutup',
+            customClass: {
+                    confirmButton: 'swal2-confirm'
+            }
+        });
+    </script>";
+}
+?>
+
 </html>

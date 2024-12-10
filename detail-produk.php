@@ -48,6 +48,7 @@ if ($user_id) {
     <title>Detail Produk | Sedayu Batik</title>
     <link rel="icon" type="image/png" href="assets/img/icon.png">        
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>            
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -198,6 +199,11 @@ if ($user_id) {
     .sizes button {
         margin-right: 6px;
         border-radius: 4px;
+    }
+
+    .size-btn.active {
+        background-color: #267EBB;
+        color: #fff;
     }
 
     .sizes button,
@@ -428,12 +434,21 @@ if ($user_id) {
 
             <!-- Bagikan -->
             <div style="display: flex; align-items:center; gap: 40px;">
-                <div class="share">
+                <!-- <div class="share">
                     <span>Bagikan:</span>
                     <i class="fab fa-facebook-f"></i>
                     <i class="fab fa-instagram"></i>
                     <i class="fab fa-tiktok"></i>
+                    <i class="fa-brands fa-whatsapp"></i>
+                </div> -->
+                <div class="share">
+                    <span>Bagikan:</span>
+                    <a href="https://wa.me/?text=<?= urlencode('Saya menemukan batik keren di Sedayu Batik: '.$produk['nama'].' dengan harga Rp'.number_format($produk['harga'], 0, ',', '.').' | cek di: http://sedayubatik.wuaze.com/detail-produk.php?id='.$id_produk); ?>"
+                    target="_blank" 
+                    class="fa-brands fa-whatsapp" 
+                    style="color:#000; font-size: 24px;"></a>
                 </div>
+
     
                 <div class="favorite">
                     <span>Favorit:</span>
@@ -481,6 +496,7 @@ if ($user_id) {
     <?php include 'assets/components/footer.php' ?>
 
 </body>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
 <script>
     function openTab(event, tabId) {
         const tabContents = document.querySelectorAll('.tab-content');
@@ -563,5 +579,39 @@ if ($user_id) {
         }
     });
 </script>
+<?php
+if (isset($_GET['error'])) {
+    $error = $_GET['error'];
+    if ($error === 'ukuran') {
+        echo "<script>
+            window.onload = function() {
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: 'Pilih ukuran terlebih dahulu.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    customClass: {
+                        confirmButton: 'swal2-confirm'
+                    }
+                });
+            }
+        </script>";
+    } elseif ($error === 'stok') {
+        echo "<script>
+            window.onload = function() {
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: 'Stok tidak mencukupi untuk ukuran yang dipilih.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    customClass: {
+                        confirmButton: 'swal2-confirm'
+                    }
+                });
+            }
+        </script>";
+    }
+}
+?>
 
 </html>

@@ -1,29 +1,38 @@
 <?php 
 include '../koneksi/koneksi.php';
-session_start(); 
+session_start();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Handle Register
     if (isset($_POST['register'])) {
         $email = $_POST['email'];
         $password = $_POST['password'];
         $passwordConfirm = $_POST['password_confirmation'];
 
-        if ($password !== $passwordConfirm) {
-            echo "Password confirmation does not match.";
+        // Cek apakah email sudah digunakan
+        $checkEmailSql = "SELECT email FROM users WHERE email = '$email'";
+        $checkEmailResult = mysqli_query($conn, $checkEmailSql);
+
+        if (mysqli_num_rows($checkEmailResult) > 0) {
+            $_SESSION['error'] = "Email sudah digunakan.";
+        } elseif ($password !== $passwordConfirm) {
+            $_SESSION['error'] = "Konfirmasi kata sandi tidak sesuai.";
         } else {
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            $role = 'user'; 
+            $role = 'user';
 
             $sql = "INSERT INTO users (email, password, role) VALUES ('$email', '$hashedPassword', '$role')";
-
             if (mysqli_query($conn, $sql)) {
-                echo "Registration successful!";
+                $_SESSION['success'] = "Registrasi berhasil! Silakan login.";
+                // header('Location: login.php'); // Arahkan ke halaman login
+                // exit();
             } else {
-                echo "Error: " . mysqli_error($conn);
+                $_SESSION['error'] = "Terjadi kesalahan: " . mysqli_error($conn);
             }
         }
     }
 
+    // Handle Login
     if (isset($_POST['login'])) {
         $email = $_POST['email'];
         $password = $_POST['password'];
@@ -33,28 +42,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if (mysqli_num_rows($result) > 0) {
             $row = mysqli_fetch_assoc($result);
-            $hashedPassword = $row['password'];
-
-            if (password_verify($password, $hashedPassword)) {
+            if (password_verify($password, $row['password'])) {
                 $_SESSION['id'] = $row['id'];
                 $_SESSION['email'] = $row['email'];
                 $_SESSION['role'] = $row['role'];
 
                 if ($row['role'] == 'admin') {
+                    $_SESSION['success'] = "Selamat datang, Admin!";
                     header('Location: ../admin/dashboard.php');
                 } else {
+                    $_SESSION['success'] = "Login berhasil! Selamat datang.";
                     header('Location: ../index.php');
                 }
                 exit();
             } else {
-                echo "Incorrect password.";
+                $_SESSION['error'] = "Password salah.";
             }
         } else {
-            echo "No user found with that email address.";
+            $_SESSION['error'] = "Email tidak ditemukan.";
         }
     }
 }
 ?>
+
 
 <html lang="en">
 <head>
@@ -64,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="../assets/css/login.css">
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css" rel="stylesheet">
     <title>Sedayu Batik</title>
 </head>
 <body>
@@ -119,18 +130,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
+    <?php if (isset($_SESSION['success'])): ?>
+        <script>
+            Swal.fire({
+                title: 'Berhasil!',
+                text: '<?php echo $_SESSION['success']; ?>',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        </script>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+    
+    <?php if (isset($_SESSION['error'])): ?>
+        <script>
+            Swal.fire({
+                title: 'Error!',
+                text: '<?php echo $_SESSION['error']; ?>',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        </script>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
+    
+    <script type="text/javascript">
+        const signUpButton = document.getElementById('signUp');
+        const signInButton = document.getElementById('signIn');
+        const container = document.getElementById('container');
+    
+        signUpButton.addEventListener('click', () => {
+            container.classList.add("right-panel-active");
+        });
+    
+        signInButton.addEventListener('click', () => {
+            container.classList.remove("right-panel-active");
+        });
+    </script>
 </body>
-<script type="text/javascript">
-    const signUpButton = document.getElementById('signUp');
-    const signInButton = document.getElementById('signIn');
-    const container = document.getElementById('container');
-
-    signUpButton.addEventListener('click', () => {
-        container.classList.add("right-panel-active");
-    });
-
-    signInButton.addEventListener('click', () => {
-        container.classList.remove("right-panel-active");
-    });
-</script>
 </html>

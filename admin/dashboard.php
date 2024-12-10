@@ -38,9 +38,26 @@ $totalDiskon = $totalDiskonResult->fetch_assoc()['total'];
     <title>Admin - Dashboard</title>
     <link rel="icon" type="image/png" href="../assets/img/icon.png">        
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css" rel="stylesheet">
     <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>            
     <link rel="stylesheet" href="../assets/css/admin.css">
 </head>
+<style>
+    .swal2-confirm {
+        background-color: #267EBB !important; /* Warna biru */
+        color: white !important; /* Warna teks */
+        border: none;
+        border-radius: 4px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .swal2-confirm:hover {
+        background-color: #0A578F !important; /* Warna biru gelap */
+    }
+</style>
 <body>
 
     <!-- Sidebar -->
@@ -87,6 +104,21 @@ $totalDiskon = $totalDiskonResult->fetch_assoc()['total'];
 
     <!-- JavaScript -->
     <script src="../assets/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
+    <?php if (isset($_SESSION['success'])): ?>
+        <script>
+            Swal.fire({
+                title: 'Selamat Datang Admin!',
+                text: '<?php echo $_SESSION['success']; ?>',
+                icon: 'success',
+                confirmButtonText: 'OK',
+                customClass: {
+                    confirmButton: 'swal2-confirm'
+                }
+            });
+        </script>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
 
 </body>
 </html>

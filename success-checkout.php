@@ -23,11 +23,13 @@ $query_order = "SELECT
                     gp.gambar1, 
                     gp.gambar2, 
                     gp.gambar3, 
-                    gp.gambar4
+                    gp.gambar4,
+                    d.diskon
                 FROM pesanan p
                 JOIN pesanan_detail pd ON p.id = pd.id_pesanan
                 JOIN produk pr ON pd.id_produk = pr.id
                 LEFT JOIN gambar_produk gp ON pr.id = gp.id_produk
+                LEFT JOIN diskon d ON p.id_diskon = d.id
                 WHERE p.id = ?";
 
 $stmt_order = $conn->prepare($query_order);
@@ -45,6 +47,7 @@ $order_data = $result_order->fetch_assoc(); // Ambil data pertama
 $pesanan_total_harga = $order_data['pesanan_total_harga'];
 $kode_pesanan = $order_data['kode_pesanan'];
 $status_pesanan = $order_data['status'];
+$diskon = $order_data['diskon'] ?? 0;
 
 // Reset pointer data untuk loop
 $result_order->data_seek(0);
@@ -57,6 +60,7 @@ $result_order->data_seek(0);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css?family=Poppins:400,600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.min.css" rel="stylesheet">
     <title>Konfirmasi Pesanan | Sedayu Batik</title>
     <link rel="icon" type="image/png" href="assets/img/icon.png">
     <style>
@@ -259,6 +263,10 @@ $result_order->data_seek(0);
                 ?>
 
                 <div class="total">
+                    <p>Diskon:</p>
+                    <p>Rp<?php echo number_format($diskon, 0, ',', '.'); ?></p>
+                </div>
+                <div class="total">
                     <p class="total-label">Total Pesanan:</p>
                     <p class="total-price">Rp<?php echo number_format($pesanan_total_harga, 0, ',', '.'); ?></p>
                 </div>
@@ -268,12 +276,25 @@ $result_order->data_seek(0);
                 <p>
                     <span>Note:</span> Jika belum melakukan transfer ke bank kami, 
                     dimohon untuk transfer terlebih dahulu untuk kami melanjutkan proses pesanan anda, 
-                    dan lampirkan bukti transfer anda di halaman "Pesanan Saya".
+                    dan tolong lampirkan bukti transfer anda di halaman "Pesanan Saya" jika benar sudah melakukan transfer/pembayaran.
                 </p>
             </div>
             <a href="pesanansaya.php" class="button">Selesai</a>
         </div>
     </div>
 </body>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.14.5/dist/sweetalert2.all.min.js"></script>
+<script>
+    Swal.fire({
+        title: 'Pesanan Berhasil!',
+        text: 'Pesanan Anda telah berhasil dibuat. Silakan melanjutkan langkah di note berikut.',
+        icon: 'success',
+        confirmButtonText: 'Oke',
+        customClass: {
+            confirmButton: 'swal2-confirm'
+        }
+    });
+</script>
 
 </html>

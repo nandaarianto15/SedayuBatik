@@ -3,16 +3,21 @@ require '../koneksi/koneksi.php';
 session_start();
 
 if (!isset($_SESSION['id'])) {
-    header("Location: ../index.php"); 
+    header("Location: ../auth/login.php"); 
     exit(); 
 }
 
 if (isset($_POST['add_to_cart'])) {
     $produk_id = intval($_POST['produk_id']);
-    $ukuran = $_POST['ukuran'];
+    $ukuran = isset($_POST['ukuran']) ? $_POST['ukuran'] : null;
     $kuantitas = intval($_POST['kuantitas']);
     $harga = floatval($_POST['harga']);
     $user_id = intval($_SESSION['id']);
+
+    if (empty($ukuran)) {
+        header("Location: ../detail-produk.php?id=$produk_id&error=ukuran");
+        exit();
+    }
 
     $queryStok = "SELECT s, m, l, xl, xxl FROM stok WHERE id_produk = $produk_id";
     $resultStok = mysqli_query($conn, $queryStok);
@@ -29,14 +34,13 @@ if (isset($_POST['add_to_cart'])) {
                            VALUES ('$user_id', '$produk_id', '$ukuran', '$kuantitas', '$jumlah_harga', 'draft')";
 
         if (mysqli_query($conn, $queryKeranjang)) {
-            header("Location: ../index.php");
+            header("Location: ../index.php?success=added");
             exit();
         } else {
             echo "Terjadi kesalahan: " . mysqli_error($conn);
         }
     } else {
-        echo "Stok tidak mencukupi untuk ukuran $ukuran!";
-        header("Location: ../detail-produk.php?id=$produk_id");
+        header("Location: ../detail-produk.php?id=$produk_id&error=stok");
         exit();
     }
 } else {

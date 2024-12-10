@@ -649,3 +649,18 @@ option:hover {
     margin-top: 5%;
     width: 50%;
 }
+
+.swal2-confirm {
+    background-color: #267EBB !important; /* Warna biru */
+    color: white !important; /* Warna teks */
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.swal2-confirm:hover {
+    background-color: #0A578F !important; /* Warna biru gelap */
+}

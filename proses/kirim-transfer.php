@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['bukti-transfer']) &&
                 $stmt->execute();
                 $stmt->close();
 
-                header("Location: ../pesanansaya.php");
+                header("Location: ../pesanansaya.php?upload_success=1");
                 exit();
             } else {
                 echo "Terjadi kesalahan saat mengunggah file.";

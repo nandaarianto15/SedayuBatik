@@ -29,9 +29,10 @@ if (mysqli_num_rows($result) > 0) {
 
     echo json_encode([
         'success' => true,
-        'discount' => $discount,
-        'total_after_discount' => $total_after_discount
+        'discount' => (int) $discount,
+        'total_after_discount' => (int) $total_after_discount
     ]);
+    
 } else {
     echo json_encode([
         'success' => false,
