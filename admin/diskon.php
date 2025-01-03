@@ -103,32 +103,32 @@ $result = $stmt->get_result();
                         <a href="?page=<?= $page - 1; ?>&search=<?= urlencode($searchQuery); ?>">&#60;</a>
                     <?php endif; ?>
                     <?php 
-                    $pagesToShow = [];
-                    $pagesToShow[] = 1;
-                
-                    if ($page > 3) {
-                        $pagesToShow[] = '...';
-                    }
-
-                    for ($i = max(2, $page - 1); $i <= min($totalPages - 1, $page + 1); $i++) {
-                        $pagesToShow[] = $i;
-                    }
-
-                    if ($page < $totalPages - 2) {
-                        $pagesToShow[] = '...';
-                    }
-
-                    if ($totalPages > 1) {
-                        $pagesToShow[] = $totalPages;
-                    }
-
-                    foreach ($pagesToShow as $p) {
-                        if ($p === '...') {
-                            echo "<a href='#'>...</a>";
-                        } else {
-                            echo "<a href='?page=$p&search=" . urlencode($searchQuery) . "' class='" . ($p == $page ? 'active' : '') . "'>$p</a>";
+                        $pagesToShow = [];
+                        $pagesToShow[] = 1;
+                    
+                        if ($page > 3) {
+                            $pagesToShow[] = '...';
                         }
-                    }
+
+                        for ($i = max(2, $page - 1); $i <= min($totalPages - 1, $page + 1); $i++) {
+                            $pagesToShow[] = $i;
+                        }
+
+                        if ($page < $totalPages - 2) {
+                            $pagesToShow[] = '...';
+                        }
+
+                        if ($totalPages > 1) {
+                            $pagesToShow[] = $totalPages;
+                        }
+
+                        foreach ($pagesToShow as $p) {
+                            if ($p === '...') {
+                                echo "<a href='#'>...</a>";
+                            } else {
+                                echo "<a href='?page=$p&search=" . urlencode($searchQuery) . "' class='" . ($p == $page ? 'active' : '') . "'>$p</a>";
+                            }
+                        }
                     ?>
                     <?php if ($page < $totalPages) : ?>
                         <a href="?page=<?= $page + 1; ?>&search=<?= urlencode($searchQuery); ?>">&#62;</a>
